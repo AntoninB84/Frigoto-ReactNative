@@ -5,6 +5,8 @@ import SignIn from './auth/signIn'
 import {deleteAccount} from '../API/Auth.js'
 import {createInventaire, getInventaires} from '../API/Inventaire.js'
 
+import DetectionManager from "./objectDetection/objectDetection"
+
 function Home(props){
 
   const dispatch = useDispatch()
@@ -45,6 +47,10 @@ function Home(props){
     })
   }
 
+  const _detect = () => {
+    return DetectionManager.initiateDetection();
+  }
+
     return(
       <View style={styles.container}>
         <Text>Bienvenue {props.user_name}</Text>
@@ -57,6 +63,12 @@ function Home(props){
           title='Supprimer mon compte'
           style={styles.button}
           onPress={() => _deleteAccount()}
+        />
+
+        <Button
+          title='Test detection'
+          style={styles.button}
+          onPress={() => _detect()}
         />
       </View>
     )

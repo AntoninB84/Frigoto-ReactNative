@@ -7,7 +7,16 @@ function Inventaire(props){
 
   const {navigation} = props
   const dispatch = useDispatch()
-  const [listeProduits, setListeProduits] = useState([{"id":0, "nom":""}])
+  const [listeProduits, setListeProduits] = useState([
+    {"id":0, "nom":""},
+    {"id":1, "nom":"Carotte"},
+    {"id":2, "nom":"kmlkjqsdf"},
+    {"id":3, "nom":"dflkjdmlgjsdf"},
+    {"id":4, "nom":"dsfgsdfgsdfg"},
+    {"id":5, "nom":"dsfgsdfgsdfg"},
+    {"id":6, "nom":"dsfgdsfgsdfg"},
+    {"id":7, "nom":"gfdgdgdgdg"},
+  ])
   const inventaireId = navigation.getParam('inventaireId', 'NO-ID')
   const nomInventaire = navigation.getParam('nomInventaire', 'NO-ID')
 
@@ -25,6 +34,9 @@ function Inventaire(props){
       setListeProduits(data.produits)
     })
   }
+
+
+
     return(
       <View style={styles.container}>
         <FlatList
