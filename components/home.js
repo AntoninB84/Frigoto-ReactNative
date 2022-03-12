@@ -48,7 +48,10 @@ function Home(props){
   }
 
   const _detect = () => {
-    return DetectionManager.initiateDetection();
+     DetectionManager.initiateDetection(() => {
+      props.navigation.navigate('Test')
+     })
+     
   }
 
     return(

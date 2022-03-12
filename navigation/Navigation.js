@@ -11,6 +11,7 @@ import Accueil from '../components/auth/accueil.js'
 import Home from '../components/home.js'
 import InventaireList from '../components/inventaire/inventaireList.js'
 import Inventaire from '../components/inventaire/inventaire.js'
+import detectionView from '../components/objectDetection/detectionView.js'
 
 const DrawerNavigator = createDrawerNavigator({
   Home :{
@@ -28,7 +29,10 @@ const HomeStackNavigator = createStackNavigator({
     navigationOptions:{
       title: 'Accueil'
     }
-  }// Ici il y aura en théorie le lien vers les recettes cliquées
+  },// Ici il y aura en théorie le lien vers les recettes cliquées
+  Test : {
+    screen: detectionView
+  }
 })
 
 const InventaireListStackNavigator = createStackNavigator({

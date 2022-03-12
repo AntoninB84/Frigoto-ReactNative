@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.frigoto.BuildConfig
 import com.frigoto.R
 import com.google.mlkit.common.model.LocalModel
@@ -23,15 +24,18 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 class ObjectDetection : AppCompatActivity(){
 
     private val ORIENTATIONS = SparseIntArray()
     val REQUEST_IMAGE_CAPTURE = 1
     lateinit var currentPhotoPath: String
+    lateinit var currentJSONPath: String
     private var photoURL: Uri? = null
-
-    private var textView : TextView? = null
+    private var JSONFileURL: Uri? = null
+    var photoFile: File? = null
+    var JSONFile: File? = null
 
     init {
         ORIENTATIONS.append(Surface.ROTATION_0, 0)
@@ -42,14 +46,10 @@ class ObjectDetection : AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        dispatchTakePictureIntent()
+
         setContentView(R.layout.object_detection_activity)
-
-        textView = findViewById(R.id.textView)
-
-        var button = findViewById<Button>(R.id.button)
-        button.setOnClickListener {
-            dispatchTakePictureIntent()
-        }
 
     }
 
@@ -65,6 +65,39 @@ class ObjectDetection : AppCompatActivity(){
         ).apply {
             // Save a file: path for use with ACTION_VIEW intents
             currentPhotoPath = absolutePath
+            Log.i("Test", currentPhotoPath)
+            createObjectUri()
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun createObjectFile(): File {
+        val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!
+        return File.createTempFile(
+            "JSON_RESULT",
+            ".json",
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentJSONPath = absolutePath
+        }
+    }
+
+    private fun createObjectUri(){
+        JSONFile = try {
+            createObjectFile()
+        } catch (ex: IOException) {
+            // Error occurred while creating the File
+            println("Erreur pendant la création du fichier")
+            null
+        }
+        JSONFile?.also {
+            val jsonURI: Uri = FileProvider.getUriForFile(
+                applicationContext,
+                BuildConfig.APPLICATION_ID + ".fileprovider",
+                it
+            )
+            JSONFileURL = jsonURI
         }
     }
 
@@ -73,7 +106,7 @@ class ObjectDetection : AppCompatActivity(){
             // Ensure that there's a camera activity to handle the intent
             takePictureIntent.resolveActivity(packageManager)?.also {
                 // Create the File where the photo should go
-                val photoFile: File? = try {
+                photoFile = try {
                     createImageFile()
                 } catch (ex: IOException) {
                     // Error occurred while creating the File
@@ -87,6 +120,7 @@ class ObjectDetection : AppCompatActivity(){
                         BuildConfig.APPLICATION_ID + ".fileprovider",
                         it
                     )
+                    Log.i("ObjectDectectionTest", photoURI.toString())
                     photoURL = photoURI
                     takePictureIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoURI)
                     takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
@@ -101,14 +135,14 @@ class ObjectDetection : AppCompatActivity(){
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 Log.i("ObjectDectectionTest", "ResultCodeOk")
-                test()
+                ProcessObjects()
             } else { // Result was a failure
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun test(){
+    private fun ProcessObjects(){
         val photoPath: Uri = photoURL ?:return
         Log.i("ObjectDetection", photoPath.toString())
 
@@ -150,15 +184,22 @@ class ObjectDetection : AppCompatActivity(){
                             objectList.add(label.text)
                         }
                     }
-                    var text = ""
+
+                    var objectArray = mutableListOf<Object>(Object("orange", 22), Object("poire", 22))
                     if(objectList.size > 0){
-                        objectList.forEach { item ->
-                            text += "$item, "
+                        for(item in objectList.distinct()){
+                            objectArray.add(Object(item, Collections.frequency(objectList, item)))
                         }
-                    }else{
-                        text = "Aucun aliment n'a été detecté."
                     }
-                    textView?.text = text
+                    Log.i("Test", objectArray.toString())
+
+                    val mapper = jacksonObjectMapper()
+                    val objectsJson = mapper.writeValueAsString(objectArray)
+                    mapper.writeValue(JSONFile, objectsJson)
+
+                    photoFile?.delete()
+
+                    finish()
 
                 }
         } catch (e: IOException) {
