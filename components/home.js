@@ -1,15 +1,10 @@
-import {connect, useSelector, useDispatch} from 'react-redux'
+import {connect} from 'react-redux'
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Button, ToastAndroid, TextInput, FlatList, BackHandler, Alert} from 'react-native';
-import SignIn from './auth/signIn'
-import {deleteAccount} from '../API/Auth.js'
-import {createInventaire, getInventaires} from '../API/Inventaire.js'
-
 import DetectionManager from "./objectDetection/objectDetection"
+import Header from './resources/header';
 
 function Home(props){
-
-  const dispatch = useDispatch()
 
   useEffect(() => {
     if(props.api_token  === ""){
@@ -35,38 +30,17 @@ function Home(props){
       BackHandler.removeEventListener("hardwareBackPress", backAction);
   }, []);*/
 
-  const _disconnect = () => {
-    const action = { type: "RESET", value: "" }
-    dispatch(action)
-  }
-
-  const _deleteAccount = () => {
-    deleteAccount(props.user_id, props.api_token).then(data => {
-      ToastAndroid.show(data.message, ToastAndroid.SHORT);
-      _disconnect()
-    })
-  }
-
   const _detect = () => {
      DetectionManager.initiateDetection(() => {
+       // Comment savoir quand la photo a été prise pour aller chercher le fichier ?
       props.navigation.navigate('Test')
      })
-     
   }
 
     return(
       <View style={styles.container}>
+        <Header navigation={props.navigation}/>
         <Text>Bienvenue {props.user_name}</Text>
-        <Button
-          title='Se déconnecter'
-          style={styles.button}
-          onPress={() => _disconnect()}
-        />
-        <Button
-          title='Supprimer mon compte'
-          style={styles.button}
-          onPress={() => _deleteAccount()}
-        />
 
         <Button
           title='Test detection'
@@ -80,11 +54,6 @@ function Home(props){
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignSelf: 'stretch',
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'space-around',
   },
   listeItem: {
     fontSize: 15,

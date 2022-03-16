@@ -11,49 +11,37 @@ import Accueil from '../components/auth/accueil.js'
 import Home from '../components/home.js'
 import InventaireList from '../components/inventaire/inventaireList.js'
 import Inventaire from '../components/inventaire/inventaire.js'
-import detectionView from '../components/objectDetection/detectionView.js'
-
-const DrawerNavigator = createDrawerNavigator({
-  Home :{
-    screen:Home,
-    navigationOptions:{
-      title: 'Accueil',
-      headerLeft: null
-    }
-  }
-})
+import Profile from '../components/profile/profile.js'
 
 const HomeStackNavigator = createStackNavigator({
   Home :{
     screen:Home,
-    navigationOptions:{
-      title: 'Accueil'
-    }
   },// Ici il y aura en théorie le lien vers les recettes cliquées
-  Test : {
-    screen: detectionView
-  }
+},{
+  headerMode: 'none'
 })
 
 const InventaireListStackNavigator = createStackNavigator({
   InventaireList:{
     screen: InventaireList,
-    navigationOptions:{
-      title: "Frigoto"
-    }
   },
   Inventaire:{
     screen: Inventaire
   }
+},{
+  headerMode: 'none'
 })
 
 const BottomTabNavigator = createBottomTabNavigator({
   Home : {
     screen : HomeStackNavigator,
     navigationOptions: {
-      tabBarIcon: () => {
+      tabBarLabel: "Accueil",
+      tabBarIcon: ({focused}) => {
         return <Image
-          source={require('../assets/ic_search.png')}
+          source={
+             focused ? require('../assets/bottomFull/maison.png')
+              : require('../assets/bottomLight/maison.png')}
           style={styles.icon}/>
       }
     }
@@ -61,24 +49,44 @@ const BottomTabNavigator = createBottomTabNavigator({
   InventaireList: {
     screen: InventaireListStackNavigator,
     navigationOptions: {
-      tabBarIcon: () => {
+      tabBarLabel: "Inventaire",
+      tabBarIcon: ({focused}) => {
         return <Image
-          source={require('../assets/ic_favorite.png')}
+          source={
+            focused ? require('../assets/bottomFull/frigo.png')
+              : require('../assets/bottomLight/frigo.png')}
           style={styles.icon}/>
       }
     }
   },
-
 },
 {
   tabBarOptions: {
-    activeBackgroundColor: '#DDDDDD',
+    activeBackgroundColor: '#FFFFFF',
     inactiveBackgroundColor: '#FFFFFF',
-    showLabel: false,
-    showIcon: true
-  }
+    showLabel: true,
+    showIcon: true,
+    labelStyle : {
+      color: "#bf4c4c"
+    }
+  },
 }
 )
+
+const DrawerNavigator = createDrawerNavigator({
+  Home :{
+    screen:BottomTabNavigator,
+    navigationOptions: {
+      title: "Accueil",
+    }
+  },
+  Profile: {
+    screen: Profile,
+    navigationOptions: {
+      title: "Profil",
+    }
+  }
+})
 
 const SignInStackNavigator = createStackNavigator({
   SignIn:{
@@ -99,7 +107,7 @@ const SignInStackNavigator = createStackNavigator({
 const SwitchNavigator = createSwitchNavigator(
   {
     AuthLoading: AuthLoading,
-    App: BottomTabNavigator,
+    App: DrawerNavigator,
     Auth: SignInStackNavigator,
   },
   {
@@ -109,8 +117,16 @@ const SwitchNavigator = createSwitchNavigator(
 
 const styles = StyleSheet.create({
   icon: {
-    width: 30,
-    height: 30
+    width: 25,
+    height: 25,
+    resizeMode: 'contain'
+  },
+  headerStyle:{
+    backgroundColor: "red"
+  },
+  drawerImage:{
+    backgroundColor: '#bf4c4c',
+    marginTop: 25,
   }
 })
 
