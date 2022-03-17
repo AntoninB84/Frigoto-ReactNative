@@ -11,6 +11,7 @@ import Accueil from '../components/auth/accueil.js'
 import Home from '../components/home.js'
 import InventaireList from '../components/inventaire/inventaireList.js'
 import Inventaire from '../components/inventaire/inventaire.js'
+import AddProduct from '../components/inventaire/addProduct.js'
 import Profile from '../components/profile/profile.js'
 
 const HomeStackNavigator = createStackNavigator({
@@ -21,12 +22,23 @@ const HomeStackNavigator = createStackNavigator({
   headerMode: 'none'
 })
 
+const InventaireStackNavigator = createStackNavigator({
+  Inventaire:{
+    screen: Inventaire,
+  },
+  AddProduct:{
+    screen: AddProduct,
+  }
+},{
+  headerMode: 'none'
+})
+
 const InventaireListStackNavigator = createStackNavigator({
   InventaireList:{
     screen: InventaireList,
   },
   Inventaire:{
-    screen: Inventaire
+    screen: InventaireStackNavigator
   }
 },{
   headerMode: 'none'

@@ -1,95 +1,112 @@
 import {connect, useSelector, useDispatch} from 'react-redux'
 import React, {useContext, useState} from 'react';
+import DetectionManager from "../objectDetection/objectDetection"
 import { 
+  Alert,
+  Modal,
   StyleSheet, 
   Text, 
   View, 
   FlatList, 
   TouchableWithoutFeedback, 
   TouchableOpacity, 
-  Image} from 'react-native';
-import {getProduits} from '../../API/Produits.js'
+  Image,
+  ToastAndroid} from 'react-native';
 import Header from '../resources/header';
 
-function Inventaire(props){
+function AddProduct(props){
 
   const {navigation} = props
   const dispatch = useDispatch()
-  const [listeProduits, setListeProduits] = useState([
-    {"id":0, "nom":"", "quantity":2 },
-    {"id":1, "nom":"Carotte", "quantity":2 },
-    {"id":2, "nom":"kmlkjqsdf", "quantity":2 },
-    {"id":3, "nom":"dflkjdmlgjsdf", "quantity":2 },
-    {"id":4, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":5, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":6, "nom":"dsfgdsfgsdfg", "quantity":2 },
-    {"id":7, "nom":"gfdgdgdgdg", "quantity":2 },
-    {"id":8, "nom":"", "quantity":2 },
-    {"id":9, "nom":"Carotte", "quantity":2 },
-    {"id":10, "nom":"kmlkjqsdf", "quantity":2 },
-    {"id":11, "nom":"dflkjdmlgjsdf", "quantity":2 },
-    {"id":12, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":13, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":14, "nom":"dsfgdsfgsdfg", "quantity":2 },
-    {"id":15, "nom":"gfdgdgdgdg", "quantity":2 },
-    {"id":16, "nom":"", "quantity":2 },
-    {"id":17, "nom":"Carotte", "quantity":2 },
-    {"id":18, "nom":"kmlkjqsdf", "quantity":2 },
-    {"id":19, "nom":"dflkjdmlgjsdf", "quantity":2 },
-    {"id":20, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":21, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":22, "nom":"dsfgdsfgsdfg", "quantity":2 },
-    {"id":23, "nom":"gfdgdgdgdg", "quantity":2 },
-    {"id":24, "nom":"", "quantity":2 },
-    {"id":25, "nom":"Carotte", "quantity":2 },
-    {"id":26, "nom":"kmlkjqsdf", "quantity":2 },
-    {"id":27, "nom":"dflkjdmlgjsdf", "quantity":2 },
-    {"id":28, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":29, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":30, "nom":"dsfgdsfgsdfg", "quantity":2 },
-    {"id":31, "nom":"gfdgdgdgdg", "quantity":2 },
-    {"id":32, "nom":"", "quantity":2 },
-    {"id":33, "nom":"Carotte", "quantity":2 },
-    {"id":34, "nom":"kmlkjqsdf", "quantity":2 },
-    {"id":35, "nom":"dflkjdmlgjsdf", "quantity":2 },
-    {"id":36, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":37, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":38, "nom":"dsfgdsfgsdfg", "quantity":2 },
-    {"id":39, "nom":"gfdgdgdgdg", "quantity":2 },
-    {"id":40, "nom":"", "quantity":2 },
-    {"id":41, "nom":"Carotte", "quantity":2 },
-    {"id":42, "nom":"kmlkjqsdf", "quantity":2 },
-    {"id":43, "nom":"dflkjdmlgjsdf", "quantity":2 },
-    {"id":44, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":45, "nom":"dsfgsdfgsdfg", "quantity":2 },
-    {"id":46, "nom":"dsfgdsfgsdfg", "quantity":2 },
-    {"id":47, "nom":"gfdgdgdgdg", "quantity":2 },
-  ])
+  const [listeProduits, setListeProduits] = useState([])
+  const [displayModale, setDisplayModale] = useState(false)
+  const [detectionResults, setDetectionResults] = useState([])
   const inventaireId = navigation.getParam('inventaireId', 'NO-ID')
-  const nomInventaire = navigation.getParam('nomInventaire', 'NO-ID')
 
   React.useEffect(() => {
-    //_loadProduits()
-  }, [])
+    if(detectionResults != null && detectionResults != ""){
+      var results = JSON.parse(detectionResults)
+      if(results.length > 0){
+        console.log("Results : " + results)
 
 
-  const _loadProduits = () => {
-    getProduits(inventaireId, props.api_token).then(data => {
-      setListeProduits(data.produits)
+
+
+        //Traiter les résultats
+
+
+
+
+        
+      }else{
+        ToastAndroid.show("Nous n'avons rien détecté... Veuillez réessayer !", ToastAndroid.LONG);
+      }
+    }
+  }, [detectionResults])
+
+  const _initiateObjectDetection = () => {
+    DetectionManager.initiateDetection(() => {
+      setTimeout(function () {
+        setDisplayModale(true)
+    }, 3000);
     })
   }
 
-  const _navigateToAddProduct = () => {
-    props.navigation.navigate('AddProduct', {
-      inventaireId: inventaireId
+  const getDetectionResults = () => {
+
+    var RNFS = require('react-native-fs');
+    var filePath = null;
+    var fileContent = null;
+  
+    //RNFS.ExternalDirectoryPath...
+    RNFS.readDir("/storage/emulated/0/Android/data/com.frigoto/files/Documents")
+    .then((result) => {
+        result.forEach((it)=>{
+            filePath = it.path
+            RNFS.readFile(filePath)
+            .then((content)=>{
+              fileContent = JSON.parse(content)
+              setDetectionResults(fileContent)
+              RNFS.unlink(filePath)                  
+              return null
+            })
+        })
     })
   }
 
+    const detectionResultsModal = () => {
+      return (
+        <Modal
+          visible={displayModale}
+          transparent={true}
+          onRequestClose={()=>{
+            setDisplayModale(false)
+          }}
+        >
+          <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <TouchableOpacity
+              style={[styles.buttonModale]}
+              onPress={() => {
+                setDisplayModale(false)
+                getDetectionResults()
+              }
+              }
+            >
+              <Text style={styles.buttonTextModale}>Detection d'objets</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        </Modal>
+      )
+    }
 
 
     return(
       <>
         <Header navigation={props.navigation}/>
+        {detectionResultsModal()}
+        <Text>Ici il faudra mettre un select en autocomplétion ou un truc du genre</Text>
         <View style={styles.container}>
           <FlatList
             data={listeProduits}
@@ -100,7 +117,7 @@ function Inventaire(props){
             ListEmptyComponent={() => {
               return (
               <Text style={styles.emptyMessage}>
-                Il n'y a rien dans votre inventaire.
+                Aucun aliment à ajouter.
               </Text>
               )
             }}
@@ -140,10 +157,10 @@ function Inventaire(props){
 
           <TouchableOpacity
             style={styles.floatingactionbutton}
-            onPress={() => _navigateToAddProduct()}>
+            onPress={() => _initiateObjectDetection()}>
             <Image
               style={styles.floatingactionbutton_image}
-              source={require('../../assets/floatingRedButton.png')} />
+              source={require('../../assets/camera.png')} />
           </TouchableOpacity>
         </View>
       </>
@@ -162,7 +179,7 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps)(Inventaire)
+export default connect(mapStateToProps)(AddProduct)
 
 const styles = StyleSheet.create({
   container: {
@@ -215,11 +232,37 @@ const styles = StyleSheet.create({
     right: 10,
     bottom: 10,
     borderRadius: 30,
+    backgroundColor: '#df4c4c',
     justifyContent: 'center',
     alignItems: 'center'
   },
   floatingactionbutton_image: {
-    width: 50,
-    height: 50
-  }
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
+    tintColor: 'white',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#00000088",
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderRadius: 5,
+    paddingVertical: 30,
+    paddingHorizontal: 60,
+  },
+  buttonModale: {
+    borderRadius: 3,
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#df4c4c",
+  },
+  buttonTextModale: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
 });

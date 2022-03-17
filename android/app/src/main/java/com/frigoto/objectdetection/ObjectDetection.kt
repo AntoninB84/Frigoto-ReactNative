@@ -138,6 +138,9 @@ class ObjectDetection : AppCompatActivity(){
                 ProcessObjects()
             } else { // Result was a failure
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show()
+                photoFile?.delete()
+                JSONFile?.delete()
+                finish()
             }
         }
     }
@@ -185,7 +188,7 @@ class ObjectDetection : AppCompatActivity(){
                         }
                     }
 
-                    var objectArray = mutableListOf<Object>(Object("orange", 22), Object("poire", 22))
+                    var objectArray = mutableListOf<Object>(/*Object("orange", 22), Object("poire", 22)*/)
                     if(objectList.size > 0){
                         for(item in objectList.distinct()){
                             objectArray.add(Object(item, Collections.frequency(objectList, item)))

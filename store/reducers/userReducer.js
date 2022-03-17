@@ -1,4 +1,10 @@
-const initialTokenState = { api_token: "", user_id:"", user_name:"", user_surname:"", user_email:"" }
+const initialTokenState = { 
+  api_token: "", 
+  user_id:"", 
+  user_name:"", 
+  user_surname:"", 
+  user_email:"",
+}
 
 export default function setApiToken(state = initialTokenState, action) {
   let nextState
@@ -36,7 +42,11 @@ export default function setApiToken(state = initialTokenState, action) {
     case 'RESET':
       nextState = {
         ...state,
-        api_token: "", user_id:"", user_name:"", user_surname:"", user_email:""
+        api_token: "", 
+        user_id:"", 
+        user_name:"", 
+        user_surname:"", 
+        user_email:"",
       }
       return nextState || state
 

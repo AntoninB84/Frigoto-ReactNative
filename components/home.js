@@ -1,7 +1,6 @@
 import {connect} from 'react-redux'
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Button, ToastAndroid, TextInput, FlatList, BackHandler, Alert} from 'react-native';
-import DetectionManager from "./objectDetection/objectDetection"
 import Header from './resources/header';
 
 function Home(props){
@@ -30,23 +29,11 @@ function Home(props){
       BackHandler.removeEventListener("hardwareBackPress", backAction);
   }, []);*/
 
-  const _detect = () => {
-     DetectionManager.initiateDetection(() => {
-       // Comment savoir quand la photo a été prise pour aller chercher le fichier ?
-      props.navigation.navigate('Test')
-     })
-  }
-
+  
     return(
       <View style={styles.container}>
         <Header navigation={props.navigation}/>
         <Text>Bienvenue {props.user_name}</Text>
-
-        <Button
-          title='Test detection'
-          style={styles.button}
-          onPress={() => _detect()}
-        />
       </View>
     )
 
