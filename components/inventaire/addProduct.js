@@ -27,16 +27,20 @@ function AddProduct(props){
     if(detectionResults != null && detectionResults != ""){
       var results = JSON.parse(detectionResults)
       if(results.length > 0){
-        console.log("Results : " + results)
+        console.log("Results : " + detectionResults)
 
+        var items = [...listeProduits]
 
+        for(let i = 0; i < results.length; i++){
+          items.push({
+            "id":i, 
+            "nom":results[i].nom, 
+            "quantity":results[i].quantity
+          }) 
+        }
 
-
-        //Traiter les résultats
-
-
-
-
+        setListeProduits(items)
+        setDetectionResults(null)
         
       }else{
         ToastAndroid.show("Nous n'avons rien détecté... Veuillez réessayer !", ToastAndroid.LONG);

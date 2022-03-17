@@ -188,7 +188,7 @@ class ObjectDetection : AppCompatActivity(){
                         }
                     }
 
-                    var objectArray = mutableListOf<Object>(/*Object("orange", 22), Object("poire", 22)*/)
+                    var objectArray = mutableListOf<Object>(Object("orange", 22), Object("poire", 22))
                     if(objectList.size > 0){
                         for(item in objectList.distinct()){
                             objectArray.add(Object(item, Collections.frequency(objectList, item)))
