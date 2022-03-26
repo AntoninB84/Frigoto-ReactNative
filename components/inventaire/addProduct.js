@@ -1,14 +1,16 @@
 import {connect, useSelector, useDispatch} from 'react-redux'
 import React, {useContext, useState} from 'react';
 import DetectionManager from "../objectDetection/objectDetection"
+import ProductList from './productList';
+import { getProduitsLike, postProduits } from '../../API/Produits';
 import { 
-  Alert,
   Modal,
+  Button,
   StyleSheet, 
   Text, 
   View, 
-  FlatList, 
-  TouchableWithoutFeedback, 
+  TextInput,
+  FlatList,
   TouchableOpacity, 
   Image,
   ToastAndroid} from 'react-native';
@@ -18,9 +20,15 @@ function AddProduct(props){
 
   const {navigation} = props
   const dispatch = useDispatch()
+
+  const [searchedProduct, setSearchedProduct] = useState("")
+  const [searchHasFocus, setSearchHasFocus] = useState(false)
+  const [rechercheModal, setRechercheModal] = useState(false)
+  const [listePropositions, setListePropositions] = useState([])
   const [listeProduits, setListeProduits] = useState([])
   const [displayModale, setDisplayModale] = useState(false)
   const [detectionResults, setDetectionResults] = useState([])
+
   const inventaireId = navigation.getParam('inventaireId', 'NO-ID')
 
   React.useEffect(() => {
@@ -35,7 +43,9 @@ function AddProduct(props){
           items.push({
             "id":i, 
             "nom":results[i].nom, 
-            "quantity":results[i].quantity
+            "inventaire_produit":[{
+              "quantite" : results[i].quantity
+            }]
           }) 
         }
 
@@ -47,6 +57,16 @@ function AddProduct(props){
       }
     }
   }, [detectionResults])
+
+  React.useEffect(() => {
+    if(searchedProduct.length >= 3){
+      getProduitsLike(searchedProduct, props.api_token).then(data => {
+        setListePropositions(data)
+      })
+    }else{
+      setListePropositions([])
+    }
+  }, [searchedProduct])
 
   const _initiateObjectDetection = () => {
     DetectionManager.initiateDetection(() => {
@@ -78,7 +98,7 @@ function AddProduct(props){
     })
   }
 
-    const detectionResultsModal = () => {
+  const detectionResultsModal = () => {
       return (
         <Modal
           visible={displayModale}
@@ -103,62 +123,130 @@ function AddProduct(props){
         </View>
         </Modal>
       )
-    }
+  }
 
+  const _incrementerProduit = (index) => {
+    let liste = [...listeProduits]
+    liste[index].inventaire_produit.quantite += 1
+    setListeProduits(liste)
+  }
+
+  const _decrementerProduit = (index) => {
+    let liste = [...listeProduits]
+    liste[index].inventaire_produit.quantite -= 1
+    if(liste[index].inventaire_produit.quantite <= 0){
+      liste.splice(index,1)
+    }
+    setListeProduits(liste)
+  }
+
+  const _chooseProposition = (product) => {
+    setSearchHasFocus(false)
+    console.log(product)
+    let liste = [...listeProduits]
+    let index = liste.findIndex(element => element.nom === product.nom) 
+    if(index >= 0){
+      
+      liste[index].inventaire_produit.quantite += 1
+    }else{
+      liste.push({
+        "id":product.id,
+        "nom":product.nom,
+        "inventaire_produit":
+          {
+            "quantite":1
+          }
+      })
+    }
+    setListeProduits(liste)
+  }
+
+  const _displayPropositionList = (index) => {
+    if(searchHasFocus == true){
+      return(
+        <FlatList 
+          data={listePropositions}
+          style={styles.listePropositions}
+          contentContainerStyle={{ borderWidth: 0.5 }} 
+          keyExtractor={(item, index) => item.id}
+          ListEmptyComponent={() => {
+            return (
+              <Text style={styles.propositionText}>
+                Aucune correspondance.
+              </Text>
+            )
+          }}
+          renderItem={({item, index}) =>
+            <TouchableOpacity
+              onPress={()=>{_chooseProposition(item)}}
+            >
+              <Text style={styles.propositionText}>{item.nom}</Text>
+            </TouchableOpacity>
+          }
+        />
+      )
+    }
+  }
+
+  const _displayRechercheModal = () => {
+    if(rechercheModal == true) {
+      return(
+        <TouchableOpacity
+          style={styles.rechercheModale}
+          onPress={() => {
+            setSearchHasFocus(false)
+            setRechercheModal(false)
+          }}
+        ></TouchableOpacity>
+      )
+    }
+  }
+
+  const _sendProductsToServer = () => {
+    postProduits(inventaireId, listeProduits, props.api_token)
+    .then((data) => {
+      ToastAndroid.show(data.message, ToastAndroid.LONG)
+      navigation.goBack()
+    })
+  }
 
     return(
       <>
         <Header navigation={props.navigation}/>
         {detectionResultsModal()}
-        <Text>Ici il faudra mettre un select en autocomplétion ou un truc du genre</Text>
+        <View style={styles.rechercheContainer}> 
+          <View style={styles.textInputLine}>
+            <TextInput
+              style={styles.inputText}
+              value={searchedProduct}
+              placeholder="Rechercher un produit"
+              onFocus={() => {
+                setSearchHasFocus(true)
+                setRechercheModal(true)
+              }}
+              onChangeText={(texte) => {setSearchedProduct(texte)}}
+            ></TextInput>
+          </View>
+            {_displayPropositionList()}
+            {_displayRechercheModal()}
+            
+        </View>
         <View style={styles.container}>
-          <FlatList
-            data={listeProduits}
-            numColumns={3}
-            style={styles.liste}
-            contentContainerStyle={{ paddingBottom: 80 }} 
-            keyExtractor={(item, index) => item.id}
-            ListEmptyComponent={() => {
-              return (
-              <Text style={styles.emptyMessage}>
-                Aucun aliment à ajouter.
-              </Text>
-              )
-            }}
-            renderItem={({item}) =>
-              <TouchableWithoutFeedback
-              >
-                <View style={styles.listeItemContainer}>
-                  <Image 
-                    style={styles.listeItemImage}
-                    source={require('../../assets/frigoto.png')}
-                  />
-                  <Text style={styles.listeItemName}>{item.nom}</Text>
-                  <View style={styles.listeQuantityLine}>
-                    <TouchableOpacity
-                      onPress={() => {}}
-                    >
-                      <Image
-                        style={styles.listeItemIcons}
-                        source={require('../../assets/moins.png')}
-                      />
-                    </TouchableOpacity>
-                    <Text>{item.quantity}</Text>
-                    <TouchableOpacity
-                      onPress={() => {}}
-                    >
-                      <Image
-                        style={styles.listeItemIcons}
-                        source={require('../../assets/plus.png')}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-            }
+          <ProductList
+            listeProduits={listeProduits}
+            boutonPlus={(id, index) => _incrementerProduit(index)}
+            boutonMoins={(id,index) => _decrementerProduit(index)}
+            emptyMessage={"Aucun produit dans la liste."}
           />
-
-
+          <TouchableOpacity
+            style={styles.cacheMisere}
+            onPress={() => {}}
+          ></TouchableOpacity>
+          <TouchableOpacity
+            style={styles.validateButton}
+            onPress={() => _sendProductsToServer()}>
+              <Text style={styles.validateButtonText}>Valider</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.floatingactionbutton}
             onPress={() => _initiateObjectDetection()}>
@@ -190,44 +278,64 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 10,
   },
-  liste:{
-    padding: 10,
-    paddingBottom: 100,
+  textInputLine:{
+    flexDirection: 'row',
   },
-  listeItemContainer:{
-    borderColor: 'red',
-    borderRadius: 10,
-    borderWidth: 1,
-    padding: 1,
-    margin: '1.67%',
-    width: '30%',
+  inputText:{
+    flex: 1,
+    marginHorizontal: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'grey',
   },
-  listeItemName: {
-    fontSize: 10,
-    textAlign: 'center',
-    padding: 2,
-    color: "red"
-  },
-  listeItemImage:{
-    backgroundColor: "white",
-    borderTopRightRadius: 8,
-    borderTopLeftRadius: 8,
+  rechercheModale:{
+    flex:1,
+    marginTop: 49,
     width: '100%',
-    height: 100,
+    height: 1000,
+    position: 'absolute',
+    zIndex: 2,
   },
-  listeQuantityLine:{
-    flexDirection: "row",
-    justifyContent: 'space-between',
-    alignContent: "center",
-    margin: 5,
+  rechercheContainer:{
+    flexDirection: "column",
+    alignItems : 'center',
   },
-  listeItemIcons:{
-    height:20,
-    width: 20
+  listePropositions:{
+    position: 'absolute',
+    zIndex: 3,
+    backgroundColor: 'white',
+    width: "95%",
+    marginTop:49,
   },
-  emptyMessage:{
-    textAlign: "center",
-    marginTop: '50%',
+  propositionText:{
+    fontSize: 16,
+    padding: 15,
+    borderBottomWidth: 0.5,
+  },
+  cacheMisere:{
+    position: 'absolute',
+    zIndex:0,
+    width: "100%",
+    height: 70,
+    bottom: 0,
+    backgroundColor: '#EEEEEE',
+  },
+  validateButton:{
+    position: 'absolute',
+    width: "75%",
+    height: 50,
+    left: 10,
+    bottom: 10,
+    borderRadius: 10,
+    backgroundColor: '#df4c4c',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  validateButtonText:{
+    color : "white",
+    fontWeight : 'bold',
+    fontSize: 20,
+    textTransform : 'uppercase',
+    letterSpacing : 1.2,
   },
   floatingactionbutton: {
     position: 'absolute',
