@@ -31,7 +31,8 @@ function Inventaire(props){
 
   const _navigateToAddProduct = () => {
     props.navigation.navigate('AddProduct', {
-      inventaireId: inventaireId
+      inventaireId: inventaireId,
+      onGoBack: () => _loadProduits()
     })
   }
 
@@ -61,6 +62,7 @@ function Inventaire(props){
             boutonPlus={_incrementerProduit}
             boutonMoins={_decrementerProduit}
             emptyMessage={"Il n'y a rien dans votre inventaire."}
+            editable={false}
           />
           <TouchableOpacity
             style={styles.floatingactionbutton}

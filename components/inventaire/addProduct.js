@@ -206,6 +206,7 @@ function AddProduct(props){
     postProduits(inventaireId, listeProduits, props.api_token)
     .then((data) => {
       ToastAndroid.show(data.message, ToastAndroid.LONG)
+      navigation.state.params.onGoBack()
       navigation.goBack()
     })
   }
@@ -237,6 +238,7 @@ function AddProduct(props){
             boutonPlus={(id, index) => _incrementerProduit(index)}
             boutonMoins={(id,index) => _decrementerProduit(index)}
             emptyMessage={"Aucun produit dans la liste."}
+            editable={true}
           />
           <TouchableOpacity
             style={styles.cacheMisere}

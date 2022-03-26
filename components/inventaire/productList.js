@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
     StyleSheet, 
-    Text, 
+    Text,
+    TextInput, 
     View, 
     FlatList, 
     TouchableWithoutFeedback, 
@@ -43,7 +44,14 @@ export default function ProductList(props){
                         source={require('../../assets/moins.png')}
                       />
                     </TouchableOpacity>
-                    <Text>{item.inventaire_produit.quantite}</Text>
+                    <TextInput 
+                      style={styles.quantity}
+                      editable={props.editable}
+                      keyboardType="number-pad"
+                      underlineColorAndroid={props.editable ? 'grey' : 'transparent'}
+                    >
+                      {item.inventaire_produit.quantite}
+                    </TextInput>
                     <TouchableOpacity
                       onPress={() => {props.boutonPlus(item.id, index)}}
                     >
@@ -91,6 +99,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignContent: "center",
     margin: 5,
+  },
+  quantity:{
+    padding: 0,
+    textAlign : 'center',
+    lineHeight: 10,
+    maxWidth : '50%'
   },
   listeItemIcons:{
     height:20,
