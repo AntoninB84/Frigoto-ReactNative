@@ -32,7 +32,7 @@ export default function ProductList(props){
                 <View style={styles.listeItemContainer}>
                   <Image 
                     style={styles.listeItemImage}
-                    source={require('../../assets/frigoto.png')}
+                    source={{uri: 'https://www.jaimefruitsetlegumes.ca/wp-content/uploads/2019/08/iStock_000007671231Large-e1565725651658-700x700.jpg'}}
                   />
                   <Text style={styles.listeItemName}>{item.nom}</Text>
                   <View style={styles.listeQuantityLine}>
