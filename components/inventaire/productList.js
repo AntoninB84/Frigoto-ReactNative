@@ -32,7 +32,7 @@ export default function ProductList(props){
                 <View style={styles.listeItemContainer}>
                   <Image 
                     style={styles.listeItemImage}
-                    source={{uri: 'https://www.jaimefruitsetlegumes.ca/wp-content/uploads/2019/08/iStock_000007671231Large-e1565725651658-700x700.jpg'}}
+                    source={{uri: item.imageUrl}}
                   />
                   <Text style={styles.listeItemName}>{item.nom}</Text>
                   <View style={styles.listeQuantityLine}>
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     padding: 1,
     margin: '1.67%',
     width: '30%',
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
   },
   listeItemName: {
     fontSize: 10,

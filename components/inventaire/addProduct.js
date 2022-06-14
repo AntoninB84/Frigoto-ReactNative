@@ -155,7 +155,8 @@ function AddProduct(props){
         "inventaire_produit":
           {
             "quantite":1
-          }
+          },
+        "imageUrl":product.imageUrl
       })
     }
     setListeProduits(liste)
