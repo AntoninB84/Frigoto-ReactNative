@@ -101,6 +101,9 @@ const DrawerNavigator = createDrawerNavigator({
 })
 
 const SignInStackNavigator = createStackNavigator({
+  Accueil:{
+    screen: Accueil
+  },
   SignIn:{
     screen: SignIn,
     navigationOptions:{

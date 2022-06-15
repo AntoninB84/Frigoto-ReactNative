@@ -56,7 +56,7 @@ function Inventaire(props){
       <>
         <Header navigation={props.navigation}/>
         <View style={styles.container}>
-          <Text>{nomInventaire}</Text>
+          <Text style={styles.titre}>{nomInventaire}</Text>
           <ProductList 
             listeProduits={listeProduits}
             boutonPlus={_incrementerProduit}
@@ -94,6 +94,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 10,
+  },
+  titre:{
+    fontSize: 25,
+    textAlign: 'center',
+    fontFamily: 'Maiandra GD',
+    padding: 15,
+    color: "#393738"
   },
   floatingactionbutton: {
     position: 'absolute',
