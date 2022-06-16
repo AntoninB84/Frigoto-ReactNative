@@ -32,7 +32,7 @@ function Profile(props) {
         >
           <View style={styles.centeredView}>
           <View style={styles.modalView}>
-              <Text>Etes-vous certains de vouloir supprimer votre compte ?</Text>
+              <Text style={{marginBottom: 30,textAlign: 'center', fontSize: 15}}>Etes-vous certains de vouloir supprimer votre compte ?</Text>
             <TouchableOpacity
               style={[styles.buttonModale]}
               onPress={() => {
@@ -56,7 +56,7 @@ function Profile(props) {
     return (
         <View style={{ flex: 1 }}>
             <Header navigation={props.navigation} />
-            {deleteAccountModal}
+            {deleteAccountModal()}
             <ImageBackground
                 source={require('../../assets/profil.png')}
                 resizeMode='cover'
@@ -154,6 +154,7 @@ const styles = StyleSheet.create({
     },
   centeredView: {
     flex: 1,
+    padding: 35,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#00000088",
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
   buttonModale: {
     borderRadius: 3,
     padding: 10,
-    elevation: 2,
+    elevation: 10,
     backgroundColor: "#df4c4c",
   },
   buttonTextModale: {
