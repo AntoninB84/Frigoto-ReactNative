@@ -1,0 +1,31 @@
+export function frenchEquivalent(word){
+
+    switch(word){
+        case "Apple": return "Pomme"
+        case "Banana": return "Banane"
+        case "Lemon": return "Citron"
+        case "Thyme": return "Thym"
+        case "Blackberries": return "Mûre"
+        case "Radish": return "Radis"
+        case "Brocoli": return "Brocoli"
+        case "Celery": return "Celeri"
+        case "Cucumber": return "Concombre"
+        case "Sweetpotato": return "Patate douce"
+        case "Blueberries": return "Myrtille"
+        case "Avocado": return "Avocat"
+        case "Pumpkin": return "Citrouille"
+        case "Clementina": return "Clémentine"
+        case "Almond": return "Amande"
+        case "Kiwano": return "Kiwi"
+        case "Corn": return "Mais"
+        case "Beet": return "Betterave"
+        case "Carrot": return "Carotte"
+        case "Lettuce": return "Salade"
+        case "Olive": return "Olive"
+        case "Pineapple": return "Ananas"
+        case "Orange": return "Orange"
+        case "Grapefruit": return "Raisin"
+        case "Tomato": return "Tomate"
+        case "Fig": return "Figue"
+    }
+}

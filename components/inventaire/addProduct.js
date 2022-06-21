@@ -2,6 +2,7 @@ import {connect, useSelector, useDispatch} from 'react-redux'
 import React, {useContext, useState} from 'react';
 import DetectionManager from "../objectDetection/objectDetection"
 import ProductList from './productList';
+import { frenchEquivalent } from '../objectDetection/frenchEquivalent';
 import { getProduitsLike, postProduits } from '../../API/Produits';
 import { 
   Modal,
@@ -40,17 +41,32 @@ function AddProduct(props){
         var items = [...listeProduits]
 
         for(let i = 0; i < results.length; i++){
-          items.push({
-            "id":i, 
-            "nom":results[i].nom, 
-            "inventaire_produit":[{
-              "quantite" : results[i].quantity
-            }]
-          }) 
+          getProduitsLike(frenchEquivalent(results[i].nom), props.api_token)
+          .then(data => {
+            data.forEach(product => {
+              if(product.nom === frenchEquivalent(results[i].nom)){
+                let index = items.findIndex(produit => produit.nom === product.nom) 
+                if(index >= 0){
+                  items[index].inventaire_produit.quantite += 1
+                }else{
+                  items.push({
+                    "id":product.id,
+                    "nom":product.nom,
+                    "inventaire_produit":
+                      {
+                        "quantite":1
+                      },
+                    "imageUrl":product.imageUrl
+                  })
+                }
+              }
+            })
+          })
         }
 
         setListeProduits(items)
         setDetectionResults(null)
+        
         
       }else{
         ToastAndroid.show("Nous n'avons rien détecté... Veuillez réessayer !", ToastAndroid.LONG);
